@@ -194,6 +194,15 @@ def info_long_list(msg: str, data: list[str]):
         info(msg, [' '.join(r) for r in rows])
 
 
+def columnize(
+        data: list[str],
+        col_n: int = 4,
+        col_width: int = 16) -> str:
+    padded = [f'{t:{col_width}.{col_width}}' for t in data]
+    rows = split_array(padded, col_n)
+    return '\n'.join([' '.join(r) for r in rows])
+
+
 def warning(msg, extra: list[str] | str | None = None):
     print(info_str(msg, extra), file=sys.stderr)
 
@@ -748,11 +757,30 @@ class Commands(object):
         self.update_or_add_media(media_set_name)
         return self
 
+    def _print_media_json(self, media):
+        json.dump(media, sys.stdout, indent=4)
+
+    def _print_media_simple_json(self, media):
+        data = [{"id": m["id"], "name": m["title"]["romaji"]} for m in media]
+        data = sorted(data, key=lambda m: m["id"])
+        json.dump(data, sys.stdout, indent=4)
+
+    def _print_media_titles(self, media):
+        titles = [m["title"]["romaji"] for m in media]
+        titles = sorted(t for t in titles)
+        print('\n'.join(titles))
+
+    def _print_media_columns(self, media, cols_n):
+        titles = [m["title"]["romaji"] for m in media]
+        titles = sorted(t for t in titles)
+        print(columnize(titles, cols_n, 24))
+
     def print(
             self,
             media_set_name: str,
             simple: bool = False,
-            text: bool = False):
+            text: bool = False,
+            columns: int | bool = False):
         """
         Print contents of a given `media set`
 
@@ -760,26 +788,16 @@ class Commands(object):
         media_set_name: Name of the `media set` to print
         """
         media = self._load_media(media_set_name)
-        if text:
-            print(
-                '\n'.join(
-                    f'{m["id"]:06d}: {m["title"]["romaji"]}'
-                    for m in media
-                )
-            )
+        if columns:
+            if columns is True:
+                columns = 4
+            self._print_media_columns(media, columns)
+        elif text:
+            self._print_media_titles(media)
         elif simple:
-            json.dump(
-                [
-                    {
-                        "id": m["id"],
-                        "name": m["title"]["romaji"]
-                    } for m in media
-                ],
-                sys.stdout,
-                indent=4
-            )
+            self._print_media_simple_json(media)
         else:
-            json.dump(media, sys.stdout, indent=4)
+            self._print_media_json(media)
         return self
 
     def _normalized_popularity(self, popularity):
