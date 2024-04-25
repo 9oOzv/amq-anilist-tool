@@ -467,9 +467,14 @@ class Commands(object):
                     popularity
                     favourites
                     trending
+                    hashtag
+                    synonyms
                     tags {
                         id
                         name
+                    }
+                    coverImage {
+                        extraLarge
                     }
                     genres
                     averageScore
