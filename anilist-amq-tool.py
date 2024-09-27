@@ -352,6 +352,7 @@ class Commands(object):
                     mediaListEntry {
                         id
                     }
+                    isAdult
                 }
             }
         }
@@ -484,6 +485,7 @@ class Commands(object):
                         romaji
                         english
                     }
+                    isAdult
                 }
             }
         }
