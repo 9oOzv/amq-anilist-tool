@@ -486,6 +486,14 @@ class Commands(object):
                         english
                     }
                     isAdult
+                    relations {
+                        edges {
+                            relationType
+                            node {
+                                id
+                            }
+                        }
+                    }
                 }
             }
         }
